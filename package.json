@@ -6,7 +6,8 @@
   "types": "src/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "dev": "nodemon --watch src --exec ts-node -r tsconfig-paths/register src/index.ts"
+    "dev": "nodemon --watch src --exec ts-node -r tsconfig-paths/register src/index.ts",
+    "postinstall": "npx prisma generate && npx prisma db seed"
   },
   "repository": {
     "type": "git",
@@ -22,7 +23,7 @@
   "author": "nizamiftahul",
   "license": "MIT",
   "dependencies": {
-    "@prisma/client": "^4.0.0",
+    "@prisma/client": "^5.15.0",
     "bcryptjs": "^2.4.3",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
@@ -38,7 +39,7 @@
     "@types/nodemailer": "^6.4.15",
     "@types/speakeasy": "^2.0.10",
     "nodemon": "^3.1.3",
-    "prisma": "^4.0.0",
+    "prisma": "^5.15.0",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^1.1.8",
     "tsconfig-paths": "^4.2.0",
