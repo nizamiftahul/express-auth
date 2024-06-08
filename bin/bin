@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+const fs = require("fs");
 const { exec } = require("child_process");
 const path = require("path");
 const dotenv = require("dotenv");
@@ -8,47 +9,71 @@ dotenv.config();
 process.chdir(path.join(process.cwd(), "node_modules", "express-auth"));
 
 if (process.argv[2] === "init")
-  exec("npm i", { env: { ...process.env } }, (err, stdout, stderr) => {
-    if (err) {
-      console.error();
-      console.error("Error:");
-      console.error(err);
-      console.error();
-    }
-    console.log(stdout);
-    console.error(stderr);
+  // exec("npm i", { env: { ...process.env } }, (err, stdout, stderr) => {
+  //   if (err) {
+  //     console.error();
+  //     console.error("Error:");
+  //     console.error(err);
+  //     console.error();
+  //   }
+  //   console.log(stdout);
+  //   console.error(stderr);
 
-    exec(
-      "npx prisma generate",
-      { env: { ...process.env } },
-      (err, stdout, stderr) => {
-        if (err) {
-          console.error();
-          console.error("Error:");
-          console.error(err);
-          console.error();
-        }
-        console.log(stdout);
-        console.error(stderr);
-
-        exec(
-          "npx prisma db seed",
-          { env: { ...process.env } },
-          (err, stdout, stderr) => {
-            if (err) {
-              console.error();
-              console.error("Error:");
-              console.error(err);
-              console.error();
-            }
-            console.log(stdout);
-            console.error(stderr);
-          }
-        );
+  exec(
+    "npx prisma generate",
+    { env: { ...process.env } },
+    (err, stdout, stderr) => {
+      if (err) {
+        console.error();
+        console.error("Error:");
+        console.error(err);
+        console.error();
       }
+      console.log(stdout);
+      console.error(stderr);
+
+      exec(
+        "npx prisma db seed",
+        { env: { ...process.env } },
+        (err, stdout, stderr) => {
+          if (err) {
+            console.error();
+            console.error("Error:");
+            console.error(err);
+            console.error();
+          }
+          console.log(stdout);
+          console.error(stderr);
+        }
+      );
+    }
+  );
+// });
+else if (process.argv[2] === "use") {
+  fs.readFile("./prisma/schema.prisma", "utf8", (err, data) => {
+    if (err) {
+      console.error("Error reading schema file:", err);
+      return;
+    }
+
+    // Modify the schema content to change the provider
+    const oldProviderRegex = /provider\s*=\s*"(\w+)"/;
+    const match = data.match(oldProviderRegex);
+    const modifiedSchema = data.replace(
+      match[0],
+      `provider = "${process.argv[3]}"`
     );
+
+    // Write the modified schema back to the file
+    fs.writeFile("./prisma/schema.prisma", modifiedSchema, "utf8", (err) => {
+      if (err) {
+        console.error("Error writing modified schema file:", err);
+        return;
+      }
+      console.log("Schema file updated successfully.");
+    });
   });
-else
+} else
   exec(
     `npx prisma ${process.argv.splice(2).join(" ")}`,
     { env: { ...process.env } },
