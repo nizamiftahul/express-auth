@@ -1,0 +1,22 @@
+# Node.js dependencies
+node_modules/
+
+# TypeScript build output
+build/
+
+# Compiled JavaScript files
+*.js
+
+# Sourcemap files
+*.js.map
+
+# IDE and editor files
+.vscode/
+.idea/
+
+# Environment variables file (if using dotenv)
+.env
+
+# OS-specific files
+.DS_Store
+Thumbs.db
