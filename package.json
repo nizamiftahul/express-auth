@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "nodemon --watch src --exec ts-node -r tsconfig-paths/register src/index.ts",
-    "postinstall": "npx prisma generate && npm explore --silent @types/bcryptjs || (echo \"@types/bcryptjs not found, creating .d.ts file\" && echo \"declare module 'bcryptjs';\" > typings/bcryptjs.d.ts) && npm run build"
+    "postinstall": "npx prisma generate && npm i --save-dev @types/bcryptjs && npm run build"
   },
   "repository": {
     "type": "git",
