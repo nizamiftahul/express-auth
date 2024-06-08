@@ -1,12 +1,6 @@
 # Node.js dependencies
 node_modules/
 
-# TypeScript build output
-dist/
-
-# Compiled JavaScript files
-*.js
-
 # Sourcemap files
 *.js.map
 
