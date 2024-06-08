@@ -9,18 +9,8 @@ dotenv.config();
 process.chdir(path.join(process.cwd(), "node_modules", "express-auth"));
 
 if (process.argv[2] === "init")
-  // exec("npm i", { env: { ...process.env } }, (err, stdout, stderr) => {
-  //   if (err) {
-  //     console.error();
-  //     console.error("Error:");
-  //     console.error(err);
-  //     console.error();
-  //   }
-  //   console.log(stdout);
-  //   console.error(stderr);
-
   exec(
-    "npx prisma generate",
+    "npm i --save-dev @types/bcryptjs",
     { env: { ...process.env } },
     (err, stdout, stderr) => {
       if (err) {
@@ -33,7 +23,7 @@ if (process.argv[2] === "init")
       console.error(stderr);
 
       exec(
-        "npx prisma db seed",
+        "npx prisma generate",
         { env: { ...process.env } },
         (err, stdout, stderr) => {
           if (err) {
@@ -44,11 +34,25 @@ if (process.argv[2] === "init")
           }
           console.log(stdout);
           console.error(stderr);
+
+          exec(
+            "npx prisma db seed",
+            { env: { ...process.env } },
+            (err, stdout, stderr) => {
+              if (err) {
+                console.error();
+                console.error("Error:");
+                console.error(err);
+                console.error();
+              }
+              console.log(stdout);
+              console.error(stderr);
+            }
+          );
         }
       );
     }
   );
-// });
 else if (process.argv[2] === "use") {
   fs.readFile("./prisma/schema.prisma", "utf8", (err, data) => {
     if (err) {
