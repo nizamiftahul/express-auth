@@ -1,16 +1,8 @@
 import express from "express";
 import bodyParser from "body-parser";
 import auth from "./auth/route";
-import {
-  generateOTP,
-  login,
-  logout,
-  refreshToken,
-  verifyOTP,
-} from "./auth/controller";
-import authMiddleware, { authOTPMiddleware } from "./auth/authMiddleware";
-import dotenv from "dotenv";
 
+import dotenv from "dotenv";
 dotenv.config();
 
 const app = express();
@@ -26,13 +18,3 @@ app.listen(PORT, () => {
 process.on("SIGINT", async () => {
   process.exit();
 });
-
-export default {
-  login,
-  logout,
-  refreshToken,
-  generateOTP,
-  verifyOTP,
-  authMiddleware,
-  authOTPMiddleware,
-};
