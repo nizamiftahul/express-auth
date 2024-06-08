@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "nodemon --watch src --exec ts-node -r tsconfig-paths/register src/index.ts",
-    "postinstall": "npx prisma generate && npx prisma db seed"
+    "postinstall": "npx prisma generate"
   },
   "repository": {
     "type": "git",
