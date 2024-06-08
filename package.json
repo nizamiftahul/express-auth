@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "nodemon --watch src --exec ts-node -r tsconfig-paths/register src/index.ts",
-    "postinstall": "npx prisma generate && npm i --save-dev @types/bcryptjs && npm run build"
+    "postinstall": "npx prisma generate"
   },
   "repository": {
     "type": "git",
