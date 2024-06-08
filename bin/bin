@@ -8,35 +8,46 @@ dotenv.config();
 process.chdir(path.join(process.cwd(), "node_modules", "express-auth"));
 
 if (process.argv[2] === "init")
-  exec(
-    "npx prisma generate",
-    { env: { ...process.env } },
-    (err, stdout, stderr) => {
-      if (err) {
-        console.error();
-        console.error("Error:");
-        console.error(err);
-        console.error();
-      }
-      console.log(stdout);
-      console.error(stderr);
-
-      exec(
-        "npx prisma db seed",
-        { env: { ...process.env } },
-        (err, stdout, stderr) => {
-          if (err) {
-            console.error();
-            console.error("Error:");
-            console.error(err);
-            console.error();
-          }
-          console.log(stdout);
-          console.error(stderr);
-        }
-      );
+  exec("npm i", { env: { ...process.env } }, (err, stdout, stderr) => {
+    if (err) {
+      console.error();
+      console.error("Error:");
+      console.error(err);
+      console.error();
     }
-  );
+    console.log(stdout);
+    console.error(stderr);
+
+    exec(
+      "npx prisma generate",
+      { env: { ...process.env } },
+      (err, stdout, stderr) => {
+        if (err) {
+          console.error();
+          console.error("Error:");
+          console.error(err);
+          console.error();
+        }
+        console.log(stdout);
+        console.error(stderr);
+
+        exec(
+          "npx prisma db seed",
+          { env: { ...process.env } },
+          (err, stdout, stderr) => {
+            if (err) {
+              console.error();
+              console.error("Error:");
+              console.error(err);
+              console.error();
+            }
+            console.log(stdout);
+            console.error(stderr);
+          }
+        );
+      }
+    );
+  });
 else
   exec(
     `npx prisma ${process.argv.splice(2).join(" ")}`,

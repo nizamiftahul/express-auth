@@ -5,8 +5,7 @@
   "main": "build/index.js",
   "scripts": {
     "build": "tsc",
-    "dev": "nodemon --watch src --exec ts-node -r tsconfig-paths/register src/index.ts",
-    "postinstall": "npm run build"
+    "dev": "nodemon --watch src --exec ts-node -r tsconfig-paths/register src/index.ts"
   },
   "repository": {
     "type": "git",
