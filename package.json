@@ -6,8 +6,7 @@
   "types": "src/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "dev": "nodemon --watch src --exec ts-node -r tsconfig-paths/register src/index.ts",
-    "postinstall": "npx prisma db seed"
+    "dev": "nodemon --watch src --exec ts-node -r tsconfig-paths/register src/index.ts"
   },
   "repository": {
     "type": "git",
