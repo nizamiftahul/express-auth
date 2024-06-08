@@ -1,11 +1,8 @@
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import db from "@src/db";
 import nodemailer from "nodemailer";
-
-import dotenv from "dotenv";
-dotenv.config();
+import { PrismaClient } from "@prisma/client";
 
 const JWT_TOKEN_SECRET = process.env.JWT_TOKEN_SECRET ?? "JWT_TOKEN_SECRET";
 const JWT_REFRESH_SECRET =
@@ -29,24 +26,25 @@ const generateRefreshJWT = ({ email }: { email: string }) => {
   return jwt.sign({ email }, JWT_REFRESH_SECRET, { expiresIn: "1d" });
 };
 
-export const login = async (req: Request, res: Response) => {
-  const { email, password } = req.body;
+export const login =
+  (db: PrismaClient) => async (req: Request, res: Response) => {
+    const { email, password } = req.body;
 
-  const user = await db.c_user.findFirst({
-    where: {
-      email,
-    },
-  });
+    const user = await db.c_user.findFirst({
+      where: {
+        email,
+      },
+    });
 
-  if (!user || !(await bcrypt.compare(password, user.password))) {
-    res.status(401).json({ message: "Invalid username or password" });
-    return;
-  }
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      res.status(401).json({ message: "Invalid username or password" });
+      return;
+    }
 
-  const accessToken = generateJWT({ email, otpSecret: true });
+    const accessToken = generateJWT({ email, otpSecret: true });
 
-  res.json({ accessToken });
-};
+    res.json({ accessToken });
+  };
 
 export const refreshToken = (req: Request, res: Response) => {
   const { token } = req.body;
@@ -82,71 +80,72 @@ export const logout = (req: Request, res: Response) => {
   res.sendStatus(204);
 };
 
-export const generateOTP = async (req: Request, res: Response) => {
-  const email = req.user?.email ?? "";
-  const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  console.log(email);
-  await db.c_user.update({
-    where: {
-      email,
-    },
-    data: {
-      otp,
-    },
-  });
-
-  const transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_HOST,
-    port: parseInt(process.env.EMAIL_PORT || "587"),
-    secure: false,
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-  });
-
-  transporter
-    .sendMail({
-      from: "your@example.comas",
-      to: email,
-      subject: "Your OTP for Login",
-      text: `Your OTP is: ${otp}`,
-    })
-    .then(() => {
-      res.status(200).send("OTP sent successfully");
-    })
-    .catch((error) => {
-      console.error("Error sending OTP:", error);
-      res.status(500).send("Failed to send OTP");
+export const generateOTP =
+  (db: PrismaClient) => async (req: Request, res: Response) => {
+    const email = req.user?.email ?? "";
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    await db.c_user.update({
+      where: {
+        email,
+      },
+      data: {
+        otp,
+      },
     });
-};
 
-export const verifyOTP = async (req: Request, res: Response) => {
-  const email = req.user?.email ?? "";
-  const { otp } = req.body;
+    const transporter = nodemailer.createTransport({
+      host: process.env.EMAIL_HOST,
+      port: parseInt(process.env.EMAIL_PORT || "587"),
+      secure: false,
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
 
-  const user = await db.c_user.findFirst({ where: { email } });
+    transporter
+      .sendMail({
+        from: "your@example.comas",
+        to: email,
+        subject: "Your OTP for Login",
+        text: `Your OTP is: ${otp}`,
+      })
+      .then(() => {
+        res.status(200).send("OTP sent successfully");
+      })
+      .catch((error) => {
+        console.error("Error sending OTP:", error);
+        res.status(500).send("Failed to send OTP");
+      });
+  };
 
-  if (!user || !user.otp) {
-    return res.status(404).send("User not found or OTP not enabled");
-  }
+export const verifyOTP =
+  (db: PrismaClient) => async (req: Request, res: Response) => {
+    const email = req.user?.email ?? "";
+    const { otp } = req.body;
 
-  if (user.otp !== otp) {
-    return res.status(401).send("Invalid OTP");
-  }
+    const user = await db.c_user.findFirst({ where: { email } });
 
-  await db.c_user.update({
-    where: {
-      email,
-    },
-    data: {
-      otp: null,
-      last_login: new Date(),
-    },
-  });
+    if (!user || !user.otp) {
+      return res.status(404).send("User not found or OTP not enabled");
+    }
 
-  const accessToken = generateJWT({ email, otpSecret: false });
-  const refreshToken = generateRefreshJWT({ email });
-  refreshTokens[refreshToken] = accessToken;
-  res.status(200).json({ accessToken, refreshToken });
-};
+    if (user.otp !== otp) {
+      return res.status(401).send("Invalid OTP");
+    }
+
+    await db.c_user.update({
+      where: {
+        email,
+      },
+      data: {
+        otp: null,
+        last_login: new Date(),
+      },
+    });
+
+    const accessToken = generateJWT({ email, otpSecret: false });
+    const refreshToken = generateRefreshJWT({ email });
+    refreshTokens[refreshToken] = accessToken;
+    res.status(200).json({ accessToken, refreshToken });
+  };

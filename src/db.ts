@@ -1,3 +1,16 @@
 import { PrismaClient } from "@prisma/client";
 
-export default new PrismaClient();
+import dotenv from "dotenv";
+dotenv.config();
+
+export const init = (url: string) => {
+  return new PrismaClient({
+    datasources: {
+      db: {
+        url,
+      },
+    },
+  });
+};
+
+export default init(process.env.DATABASE_URL ?? "");

@@ -29,10 +29,10 @@ router.get("/", authMiddleware([]), async (req: Request, res: Response) => {
   res.send(excludeProperties(user ?? {}, ["password"]));
 });
 
-router.post("/login", login);
+router.post("/login", login(db));
 router.post("/refresh-token", refreshToken);
 router.get("/logout", authMiddleware([]), logout);
-router.get("/generate-otp", authOTPMiddleware, generateOTP);
-router.post("/verify-otp", authOTPMiddleware, verifyOTP);
+router.get("/generate-otp", authOTPMiddleware, generateOTP(db));
+router.post("/verify-otp", authOTPMiddleware, verifyOTP(db));
 
 export default router;
