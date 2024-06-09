@@ -1,8 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import { requestOtps } from "./controller";
+import db from "../db";
 
 import dotenv from "dotenv";
-import db from "../db";
 dotenv.config();
 
 const JWT_TOKEN_SECRET = process.env.JWT_TOKEN_SECRET ?? "JWT_TOKEN_SECRET";
@@ -19,13 +20,11 @@ export const authMiddleware = (permissions: Array<string>) => {
             return res.sendStatus(403);
           }
 
-          const { email, otpSecret } = decoded as any;
-
-          if (otpSecret) return res.sendStatus(401);
+          if (requestOtps[token]) return res.sendStatus(401);
 
           const user = await db.c_user.findFirst({
             where: {
-              email: email ?? "",
+              email: decoded as string,
             },
             include: {
               c_role: true,

@@ -12,7 +12,8 @@ const JWT_REFRESH_SECRET =
 const JWT_TOKEN_EXPIRED = process.env.JWT_TOKEN_EXPIRED ?? "15m";
 const JWT_REFRESH_EXPIRED = process.env.JWT_REFRESH_EXPIRED ?? "1dS";
 
-const refreshTokens: { [key: string]: string } = {};
+export const requestOtps: { [key: string]: string } = {};
+export const refreshTokens: { [key: string]: string } = {};
 
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
@@ -24,19 +25,13 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const generateJWT = ({
-  email,
-  otpSecret,
-}: {
-  email: string;
-  otpSecret: boolean;
-}) => {
-  return jwt.sign({ email, otpSecret }, JWT_TOKEN_SECRET, {
+const generateJWT = (email: string) => {
+  return jwt.sign({ email }, JWT_TOKEN_SECRET, {
     expiresIn: JWT_TOKEN_EXPIRED,
   });
 };
 
-const generateRefreshJWT = ({ email }: { email: string }) => {
+const generateRefreshJWT = (email: string) => {
   return jwt.sign({ email }, JWT_REFRESH_SECRET, {
     expiresIn: JWT_REFRESH_EXPIRED,
   });
@@ -62,7 +57,8 @@ export const login = async (req: Request, res: Response) => {
     return;
   }
 
-  const accessToken = generateJWT({ email, otpSecret: true });
+  const accessToken = generateJWT(email);
+  requestOtps[accessToken] = email;
 
   res.json({ accessToken });
 };
@@ -89,7 +85,7 @@ export const refreshToken = (req: Request, res: Response) => {
       }
 
       const { email } = decoded as any;
-      const accessToken = generateJWT({ email, otpSecret: false });
+      const accessToken = generateJWT(email);
       refreshTokens[token] = accessToken;
       res.json({ accessToken });
     }
@@ -156,10 +152,14 @@ export const verifyOTP = async (req: Request, res: Response) => {
       },
     });
 
-    const accessToken = generateJWT({ email, otpSecret: false });
-    const refreshToken = generateRefreshJWT({ email });
-    refreshTokens[refreshToken] = accessToken;
-    res.status(200).json({ accessToken, refreshToken });
+    const refreshToken = generateRefreshJWT(email);
+
+    const authorization = req.headers["authorization"];
+    const token = authorization?.split(" ")[1];
+    delete requestOtps[token ?? ""];
+
+    refreshTokens[refreshToken] = token ?? "";
+    res.status(200).json({ refreshToken });
   });
 };
 
