@@ -38,12 +38,12 @@ const transporter = nodemailer_1.default.createTransport({
     },
 });
 const generateJWT = (email) => {
-    return jsonwebtoken_1.default.sign({ email }, JWT_TOKEN_SECRET, {
+    return jsonwebtoken_1.default.sign(email, JWT_TOKEN_SECRET, {
         expiresIn: JWT_TOKEN_EXPIRED,
     });
 };
 const generateRefreshJWT = (email) => {
-    return jsonwebtoken_1.default.sign({ email }, JWT_REFRESH_SECRET, {
+    return jsonwebtoken_1.default.sign(email, JWT_REFRESH_SECRET, {
         expiresIn: JWT_REFRESH_EXPIRED,
     });
 };

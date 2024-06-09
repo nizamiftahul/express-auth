@@ -29,13 +29,13 @@ const transporter = nodemailer.createTransport({
 });
 
 const generateJWT = (email: string) => {
-  return jwt.sign({ email }, JWT_TOKEN_SECRET, {
+  return jwt.sign(email, JWT_TOKEN_SECRET, {
     expiresIn: JWT_TOKEN_EXPIRED,
   });
 };
 
 const generateRefreshJWT = (email: string) => {
-  return jwt.sign({ email }, JWT_REFRESH_SECRET, {
+  return jwt.sign(email, JWT_REFRESH_SECRET, {
     expiresIn: JWT_REFRESH_EXPIRED,
   });
 };
