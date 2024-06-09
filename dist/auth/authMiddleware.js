@@ -15,8 +15,9 @@ var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.authOTPMiddleware = exports.authMiddleware = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const dotenv_1 = __importDefault(require("dotenv"));
+const controller_1 = require("./controller");
 const db_1 = __importDefault(require("../db"));
+const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const JWT_TOKEN_SECRET = (_a = process.env.JWT_TOKEN_SECRET) !== null && _a !== void 0 ? _a : "JWT_TOKEN_SECRET";
 const authMiddleware = (permissions) => {
@@ -29,12 +30,11 @@ const authMiddleware = (permissions) => {
                     if (err) {
                         return res.sendStatus(403);
                     }
-                    const { email, otpSecret } = decoded;
-                    if (otpSecret)
+                    if (controller_1.requestOtps[token])
                         return res.sendStatus(401);
                     const user = yield db_1.default.c_user.findFirst({
                         where: {
-                            email,
+                            email: decoded,
                         },
                         include: {
                             c_role: true,
@@ -75,7 +75,7 @@ const authOTPMiddleware = (req, res, next) => {
                 const { email } = decoded;
                 const user = yield db_1.default.c_user.findFirst({
                     where: {
-                        email,
+                        email: email !== null && email !== void 0 ? email : "",
                     },
                     include: {
                         c_role: true,

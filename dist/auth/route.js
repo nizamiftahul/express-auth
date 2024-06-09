@@ -19,10 +19,10 @@ const db_1 = __importDefault(require("./../db"));
 const excludeProperties_1 = __importDefault(require("./../utils/excludeProperties"));
 const router = (0, express_1.Router)();
 router.get("/", (0, authMiddleware_1.authMiddleware)([]), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+    var _a, _b;
     const user = yield db_1.default.c_user.findFirst({
         where: {
-            email: (_a = req.user) === null || _a === void 0 ? void 0 : _a.email,
+            email: (_b = (_a = req.user) === null || _a === void 0 ? void 0 : _a.email) !== null && _b !== void 0 ? _b : "",
         },
     });
     res.send((0, excludeProperties_1.default)(user !== null && user !== void 0 ? user : {}, ["password"]));

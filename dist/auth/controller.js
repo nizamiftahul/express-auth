@@ -11,9 +11,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _a, _b;
+var _a, _b, _c, _d;
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updatePassword = exports.resetPassword = exports.forgotPassword = exports.deleteUser = exports.activateUser = exports.createUser = exports.verifyOTP = exports.generateOTP = exports.logout = exports.refreshToken = exports.login = void 0;
+exports.updatePassword = exports.resetPassword = exports.forgotPassword = exports.deleteUser = exports.activateUser = exports.createUser = exports.verifyOTP = exports.generateOTP = exports.logout = exports.refreshToken = exports.login = exports.refreshTokens = exports.requestOtps = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const nodemailer_1 = __importDefault(require("nodemailer"));
@@ -22,7 +22,10 @@ const authMiddleware_1 = require("./authMiddleware");
 const db_1 = __importDefault(require("./../db"));
 const JWT_TOKEN_SECRET = (_a = process.env.JWT_TOKEN_SECRET) !== null && _a !== void 0 ? _a : "JWT_TOKEN_SECRET";
 const JWT_REFRESH_SECRET = (_b = process.env.JWT_REFRESH_SECRET) !== null && _b !== void 0 ? _b : "JWT_REFRESH_SECRET";
-const refreshTokens = {};
+const JWT_TOKEN_EXPIRED = (_c = process.env.JWT_TOKEN_EXPIRED) !== null && _c !== void 0 ? _c : "15m";
+const JWT_REFRESH_EXPIRED = (_d = process.env.JWT_REFRESH_EXPIRED) !== null && _d !== void 0 ? _d : "1dS";
+exports.requestOtps = {};
+exports.refreshTokens = {};
 const transporter = nodemailer_1.default.createTransport({
     host: process.env.EMAIL_HOST,
     port: parseInt(process.env.EMAIL_PORT || "587"),
@@ -32,13 +35,15 @@ const transporter = nodemailer_1.default.createTransport({
         pass: process.env.EMAIL_PASS,
     },
 });
-const generateJWT = ({ email, otpSecret, }) => {
-    return jsonwebtoken_1.default.sign({ email, otpSecret }, JWT_TOKEN_SECRET, {
-        expiresIn: "15m",
+const generateJWT = (email) => {
+    return jsonwebtoken_1.default.sign({ email }, JWT_TOKEN_SECRET, {
+        expiresIn: JWT_TOKEN_EXPIRED,
     });
 };
-const generateRefreshJWT = ({ email }) => {
-    return jsonwebtoken_1.default.sign({ email }, JWT_REFRESH_SECRET, { expiresIn: "1d" });
+const generateRefreshJWT = (email) => {
+    return jsonwebtoken_1.default.sign({ email }, JWT_REFRESH_SECRET, {
+        expiresIn: JWT_REFRESH_EXPIRED,
+    });
 };
 function generateToken() {
     return crypto_1.default.randomBytes(20).toString("hex");
@@ -47,7 +52,7 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
     const user = yield db_1.default.c_user.findFirst({
         where: {
-            email,
+            email: email !== null && email !== void 0 ? email : "",
             is_active: true,
             is_deleted: false,
         },
@@ -56,7 +61,8 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         res.status(401).json({ message: "Invalid username or password" });
         return;
     }
-    const accessToken = generateJWT({ email, otpSecret: true });
+    const accessToken = generateJWT(email);
+    exports.requestOtps[accessToken] = "";
     res.json({ accessToken });
 });
 exports.login = login;
@@ -64,7 +70,7 @@ const refreshToken = (req, res) => {
     const { token } = req.body;
     const authorization = req.headers["authorization"];
     const accessToken = authorization === null || authorization === void 0 ? void 0 : authorization.split(" ")[1];
-    if (refreshTokens[token] !== accessToken) {
+    if (exports.refreshTokens[token] !== accessToken) {
         return res.sendStatus(403);
     }
     jsonwebtoken_1.default.verify(token, JWT_REFRESH_SECRET, (err, decoded) => {
@@ -72,15 +78,15 @@ const refreshToken = (req, res) => {
             return res.sendStatus(403);
         }
         const { email } = decoded;
-        const accessToken = generateJWT({ email, otpSecret: false });
-        refreshTokens[token] = accessToken;
+        const accessToken = generateJWT(email);
+        exports.refreshTokens[token] = accessToken;
         res.json({ accessToken });
     });
 };
 exports.refreshToken = refreshToken;
 const logout = (req, res) => {
     var _a, _b;
-    delete refreshTokens[(_b = (_a = req.user) === null || _a === void 0 ? void 0 : _a.email) !== null && _b !== void 0 ? _b : ""];
+    delete exports.refreshTokens[(_b = (_a = req.user) === null || _a === void 0 ? void 0 : _a.email) !== null && _b !== void 0 ? _b : ""];
     res.sendStatus(204);
 };
 exports.logout = logout;
@@ -89,14 +95,14 @@ const generateOTP = (req, res) => {
         var _a, _b;
         const email = (_b = (_a = req.user) === null || _a === void 0 ? void 0 : _a.email) !== null && _b !== void 0 ? _b : "";
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        yield db_1.default.c_user.update({
-            where: {
-                email,
-            },
-            data: {
-                otp,
-            },
-        });
+        // await db.c_user.update({
+        //   where: {
+        //     email,
+        //   },
+        //   data: {
+        //     otp,
+        //   },
+        // });
         transporter
             .sendMail({
             from: "your@example.comas",
@@ -105,7 +111,14 @@ const generateOTP = (req, res) => {
             text: `Your OTP is: ${otp}`,
         })
             .then(() => {
-            res.status(200).send("OTP have been sent to your email.");
+            var _a;
+            const authorization = req.headers["authorization"];
+            const token = (_a = authorization === null || authorization === void 0 ? void 0 : authorization.split(" ")[1]) !== null && _a !== void 0 ? _a : "";
+            exports.requestOtps[token] = otp;
+            if (process.env.NODE_ENV === "development")
+                res.status(200).send(`OTP ${otp} have been sent to your email.`);
+            else
+                res.status(200).send(`OTP have been sent to your email.`);
         })
             .catch((error) => {
             console.error("Error sending OTP:", error);
@@ -116,14 +129,16 @@ const generateOTP = (req, res) => {
 exports.generateOTP = generateOTP;
 const verifyOTP = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     (0, authMiddleware_1.authOTPMiddleware)(req, res, () => __awaiter(void 0, void 0, void 0, function* () {
-        var _c, _d;
-        const email = (_d = (_c = req.user) === null || _c === void 0 ? void 0 : _c.email) !== null && _d !== void 0 ? _d : "";
+        var _e, _f, _g;
+        const email = (_f = (_e = req.user) === null || _e === void 0 ? void 0 : _e.email) !== null && _f !== void 0 ? _f : "";
         const { otp } = req.body;
-        const user = yield db_1.default.c_user.findFirst({ where: { email } });
-        if (!user || !user.otp) {
+        const user = yield db_1.default.c_user.findFirst({ where: { email: email } });
+        const authorization = req.headers["authorization"];
+        const token = (_g = authorization === null || authorization === void 0 ? void 0 : authorization.split(" ")[1]) !== null && _g !== void 0 ? _g : "";
+        if (!user || !exports.requestOtps[token]) {
             return res.status(404).send("User not found or OTP not enabled");
         }
-        if (user.otp !== otp) {
+        if (exports.requestOtps[token] !== otp) {
             return res.status(401).send("Invalid OTP");
         }
         yield db_1.default.c_user.update({
@@ -135,10 +150,10 @@ const verifyOTP = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 last_login: new Date(),
             },
         });
-        const accessToken = generateJWT({ email, otpSecret: false });
-        const refreshToken = generateRefreshJWT({ email });
-        refreshTokens[refreshToken] = accessToken;
-        res.status(200).json({ accessToken, refreshToken });
+        delete exports.requestOtps[token];
+        const refreshToken = generateRefreshJWT(email);
+        exports.refreshTokens[refreshToken] = token;
+        res.status(200).json({ refreshToken });
     }));
 });
 exports.verifyOTP = verifyOTP;
@@ -178,7 +193,8 @@ const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 });
 exports.createUser = createUser;
 const activateUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const token = req.params.token;
+    var _h;
+    const token = (_h = req.params.token) !== null && _h !== void 0 ? _h : "";
     const user = yield db_1.default.c_user.findFirst({
         where: {
             activeToken: token,
@@ -224,7 +240,7 @@ const forgotPassword = (req, res) => __awaiter(void 0, void 0, void 0, function*
         const { email } = req.body;
         const user = yield db_1.default.c_user.findFirst({
             where: {
-                email,
+                email: email !== null && email !== void 0 ? email : "",
             },
         });
         if (!user)
@@ -262,8 +278,9 @@ const forgotPassword = (req, res) => __awaiter(void 0, void 0, void 0, function*
 });
 exports.forgotPassword = forgotPassword;
 const resetPassword = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _j;
     try {
-        const token = req.params.token;
+        const token = (_j = req.params.token) !== null && _j !== void 0 ? _j : "";
         const { password } = req.body;
         const hashedPassword = bcrypt_1.default.hashSync(password, 10);
         const user = yield db_1.default.c_user.findFirst({
@@ -291,13 +308,13 @@ const resetPassword = (req, res) => __awaiter(void 0, void 0, void 0, function* 
 exports.resetPassword = resetPassword;
 const updatePassword = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     (0, authMiddleware_1.authMiddleware)([])(req, res, () => __awaiter(void 0, void 0, void 0, function* () {
-        var _e;
+        var _k, _l;
         try {
-            const email = (_e = req.user) === null || _e === void 0 ? void 0 : _e.email;
+            const email = (_l = (_k = req.user) === null || _k === void 0 ? void 0 : _k.email) !== null && _l !== void 0 ? _l : "";
             const { newPassword, currentPassword } = req.body;
             const user = yield db_1.default.c_user.findFirst({
                 where: {
-                    email,
+                    email: email,
                 },
             });
             if (!user) {
