@@ -9,6 +9,8 @@ import db from "./../db";
 const JWT_TOKEN_SECRET = process.env.JWT_TOKEN_SECRET ?? "JWT_TOKEN_SECRET";
 const JWT_REFRESH_SECRET =
   process.env.JWT_REFRESH_SECRET ?? "JWT_REFRESH_SECRET";
+const JWT_TOKEN_EXPIRED = process.env.JWT_TOKEN_EXPIRED ?? "15m";
+const JWT_REFRESH_EXPIRED = process.env.JWT_REFRESH_EXPIRED ?? "1dS";
 
 const refreshTokens: { [key: string]: string } = {};
 
@@ -30,12 +32,14 @@ const generateJWT = ({
   otpSecret: boolean;
 }) => {
   return jwt.sign({ email, otpSecret }, JWT_TOKEN_SECRET, {
-    expiresIn: "15m",
+    expiresIn: JWT_TOKEN_EXPIRED,
   });
 };
 
 const generateRefreshJWT = ({ email }: { email: string }) => {
-  return jwt.sign({ email }, JWT_REFRESH_SECRET, { expiresIn: "1d" });
+  return jwt.sign({ email }, JWT_REFRESH_SECRET, {
+    expiresIn: JWT_REFRESH_EXPIRED,
+  });
 };
 
 function generateToken() {
