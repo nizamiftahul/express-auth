@@ -164,37 +164,39 @@ export const verifyOTP =
 
 export const createUser =
   (db: PrismaClient) => async (req: Request, res: Response) => {
-    try {
-      const { email, password, c_role_id } = req.body;
-      const hashedPassword = bcrypt.hashSync(password, 10);
-      const token = generateToken();
+    authMiddleware([])(req, res, async () => {
+      try {
+        const { email, password, c_role_id } = req.body;
+        const hashedPassword = bcrypt.hashSync(password, 10);
+        const token = generateToken();
 
-      await db.c_user.create({
-        data: {
-          email,
-          password: hashedPassword,
-          c_role_id: c_role_id,
-          activeToken: token,
-        },
-      });
-
-      transporter
-        .sendMail({
-          from: "your@example.comas",
-          to: email,
-          subject: "Activate Your Account",
-          text: `To activate your account, click the following link: ${req.hostname}/activate/${token}`,
-        })
-        .then(() => {
-          res.status(200).send("Activation link sent successfully");
-        })
-        .catch((error) => {
-          console.error("Error sending Activation Link:", error);
-          res.status(500).send("Failed to send Activation Link");
+        await db.c_user.create({
+          data: {
+            email,
+            password: hashedPassword,
+            c_role_id: c_role_id,
+            activeToken: token,
+          },
         });
-    } catch (e) {
-      res.status(500).send(JSON.stringify(e));
-    }
+
+        transporter
+          .sendMail({
+            from: "your@example.comas",
+            to: email,
+            subject: "Activate Your Account",
+            text: `To activate your account, click the following link: ${req.hostname}/activate/${token}`,
+          })
+          .then(() => {
+            res.status(200).send("Activation link sent successfully");
+          })
+          .catch((error) => {
+            console.error("Error sending Activation Link:", error);
+            res.status(500).send("Failed to send Activation Link");
+          });
+      } catch (e) {
+        res.status(500).send(JSON.stringify(e));
+      }
+    });
   };
 
 export const activateUser =
@@ -225,20 +227,22 @@ export const activateUser =
 
 export const deleteUser =
   (db: PrismaClient) => async (req: Request, res: Response) => {
-    try {
-      const id = Number(req.params.id);
-      const data = await db.c_user.update({
-        where: {
-          id,
-        },
-        data: {
-          is_deleted: true,
-        },
-      });
-      res.send(data);
-    } catch (e) {
-      res.status(500).send(JSON.stringify(e));
-    }
+    authMiddleware([])(req, res, async () => {
+      try {
+        const id = Number(req.params.id);
+        const data = await db.c_user.update({
+          where: {
+            id,
+          },
+          data: {
+            is_deleted: true,
+          },
+        });
+        res.send(data);
+      } catch (e) {
+        res.status(500).send(JSON.stringify(e));
+      }
+    });
   };
 
 export const forgotPassword =

@@ -76,6 +76,20 @@ app.get("/logout", authMiddleware([]), logout);
 app.get("/generate-otp", authOTPMiddleware, generateOTP(dbAuth));
 app.post("/verify-otp", authOTPMiddleware, verifyOTP(dbAuth));
 
+app.post("/login", login(db));
+app.get("/generate-otp", generateOTP(db));
+app.post("/verify-otp", verifyOTP(db));
+app.post("/update-password/", updatePassword(db));
+app.post("/refresh-token", refreshToken);
+app.get("/logout", logout);
+
+app.post("/create-user", createUser(db));
+app.post("/activate/:token", activateUser(db));
+app.delete("/delete-user/:id", deleteUser(db));
+
+app.post("/forgot-password", forgotPassword(db));
+app.post("/reset-password/:token", resetPassword(db));
+
 app.listen(3000, () => {
   console.log("Server is running on port 3000");
 });
