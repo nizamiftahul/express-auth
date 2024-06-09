@@ -7,7 +7,7 @@ dotenv.config();
 
 const JWT_TOKEN_SECRET = process.env.JWT_TOKEN_SECRET ?? "JWT_TOKEN_SECRET";
 
-export default (permissions: Array<string>) => {
+export const authMiddleware = (permissions: Array<string>) => {
   return (req: Request, res: Response, next: NextFunction) => {
     try {
       const authorization = req.headers["authorization"];
