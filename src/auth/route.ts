@@ -12,7 +12,7 @@ import {
   updatePassword,
   verifyOTP,
 } from "./controller";
-import authMiddleware, { authOTPMiddleware } from "./authMiddleware";
+import authMiddleware from "./authMiddleware";
 import db from "@src/db";
 import excludeProperties from "@src/utils/excludeProperties";
 
@@ -35,18 +35,18 @@ router.get("/", authMiddleware([]), async (req: Request, res: Response) => {
   res.send(excludeProperties(user ?? {}, ["password"]));
 });
 
-router.post("/login", login(db));
-router.get("/generate-otp", generateOTP(db));
-router.post("/verify-otp", verifyOTP(db));
-router.post("/update-password/", updatePassword(db));
+router.post("/login", login);
+router.get("/generate-otp", generateOTP);
+router.post("/verify-otp", verifyOTP);
+router.post("/update-password/", updatePassword);
 router.post("/refresh-token", refreshToken);
 router.get("/logout", logout);
 
-router.post("/create-user", createUser(db));
-router.post("/activate/:token", activateUser(db));
-router.delete("/delete-user/:id", deleteUser(db));
+router.post("/create-user", createUser);
+router.post("/activate/:token", activateUser);
+router.delete("/delete-user/:id", deleteUser);
 
-router.post("/forgot-password", forgotPassword(db));
-router.post("/reset-password/:token", resetPassword(db));
+router.post("/forgot-password", forgotPassword);
+router.post("/reset-password/:token", resetPassword);
 
 export default router;

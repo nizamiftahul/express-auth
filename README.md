@@ -47,16 +47,20 @@ import {
   login,
   authOTPMiddleware,
   generateOTP,
-  init,
+  db,
   logout,
   refreshToken,
   verifyOTP,
+  updatePassword,
+  createUser,
+  activateUser,
+  deleteUser,
+  forgotPassword,
+  resetPassword,
 } from "express-auth";
 
 import dotenv from "dotenv";
 dotenv.config();
-
-const dbAuth = init(process.env.DATABASE_URL ?? "");
 
 const app = express();
 app.use(bodyParser.json());
@@ -70,25 +74,19 @@ app.get("/", authMiddleware([]), async (req: Request, res: Response) => {
   res.send(excludeProperties(user ?? {}, ["password"]));
 });
 
-app.post("/login", login(dbAuth));
-app.post("/refresh-token", refreshToken);
-app.get("/logout", authMiddleware([]), logout);
-app.get("/generate-otp", authOTPMiddleware, generateOTP(dbAuth));
-app.post("/verify-otp", authOTPMiddleware, verifyOTP(dbAuth));
-
-app.post("/login", login(db));
-app.get("/generate-otp", generateOTP(db));
-app.post("/verify-otp", verifyOTP(db));
-app.post("/update-password/", updatePassword(db));
+app.post("/login", login);
+app.get("/generate-otp", generateOTP);
+app.post("/verify-otp", verifyOTP);
+app.post("/update-password/", updatePassword);
 app.post("/refresh-token", refreshToken);
 app.get("/logout", logout);
 
-app.post("/create-user", createUser(db));
-app.post("/activate/:token", activateUser(db));
-app.delete("/delete-user/:id", deleteUser(db));
+app.post("/create-user", createUser);
+app.post("/activate/:token", activateUser);
+app.delete("/delete-user/:id", deleteUser);
 
-app.post("/forgot-password", forgotPassword(db));
-app.post("/reset-password/:token", resetPassword(db));
+app.post("/forgot-password", forgotPassword);
+app.post("/reset-password/:token", resetPassword);
 
 app.listen(3000, () => {
   console.log("Server is running on port 3000");
