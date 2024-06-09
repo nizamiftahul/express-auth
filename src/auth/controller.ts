@@ -6,6 +6,9 @@ import crypto from "crypto";
 import { authMiddleware, authOTPMiddleware } from "./authMiddleware";
 import db from "./../db";
 
+import dotenv from "dotenv";
+dotenv.config();
+
 const JWT_TOKEN_SECRET = process.env.JWT_TOKEN_SECRET ?? "JWT_TOKEN_SECRET";
 const JWT_REFRESH_SECRET =
   process.env.JWT_REFRESH_SECRET ?? "JWT_REFRESH_SECRET";

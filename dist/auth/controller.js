@@ -20,6 +20,8 @@ const nodemailer_1 = __importDefault(require("nodemailer"));
 const crypto_1 = __importDefault(require("crypto"));
 const authMiddleware_1 = require("./authMiddleware");
 const db_1 = __importDefault(require("./../db"));
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
 const JWT_TOKEN_SECRET = (_a = process.env.JWT_TOKEN_SECRET) !== null && _a !== void 0 ? _a : "JWT_TOKEN_SECRET";
 const JWT_REFRESH_SECRET = (_b = process.env.JWT_REFRESH_SECRET) !== null && _b !== void 0 ? _b : "JWT_REFRESH_SECRET";
 const JWT_TOKEN_EXPIRED = (_c = process.env.JWT_TOKEN_EXPIRED) !== null && _c !== void 0 ? _c : "15m";
