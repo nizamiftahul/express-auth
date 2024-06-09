@@ -14,15 +14,18 @@ datasource db {
 }
 
 model c_user {
-  id         Int       @id @default(autoincrement())
-  fullname   String
-  email      String    @unique
-  password   String
-  otp        String?
-  photo      String?
-  last_login DateTime?
-  c_role_id  Int
-  c_role       c_role    @relation(fields: [c_role_id], references: [id])
+  id          Int       @id @default(autoincrement())
+  email       String    @unique @db.VarChar()
+  password    String    @db.VarChar()
+  otp         String?   @db.Char(6)
+  photo       String?   @db.VarChar()
+  last_login  DateTime?
+  is_active   Boolean   @default(false)
+  is_deleted  Boolean   @default(false)
+  activeToken String?
+  resetToken  String?
+  c_role_id   Int
+  c_role      c_role    @relation(fields: [c_role_id], references: [id])
 
   creted_by  Int?
   created_at DateTime @default(now())
@@ -32,7 +35,7 @@ model c_user {
 
 model c_role {
   id   Int    @id @default(autoincrement())
-  name String @unique
+  name String @unique @db.VarChar()
 
   creted_by  Int?
   created_at DateTime @default(now())

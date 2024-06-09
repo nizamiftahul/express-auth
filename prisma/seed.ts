@@ -1,10 +1,10 @@
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 import db from "../src/db";
 import { exec } from "child_process";
 import dotenv from "dotenv";
 dotenv.config();
 
-exec("npx prisma migrate deploy", (err, stdout, stderr) => {
+exec("npx prisma db push", (err, stdout, stderr) => {
   if (err) {
     console.error();
     console.error("Error:");
@@ -27,15 +27,15 @@ const seed = async () => {
     });
 
     // Create users with hashed passwords
-    const hashedPassword = await bcrypt.hash("12345", 10);
+    const hashedPassword = bcrypt.hashSync("12345", 10);
     await db.c_user.upsert({
       where: { email: "superadmin@email.com" },
       update: {},
       create: {
-        fullname: "superadmin@email.com",
         email: "superadmin@email.com",
         password: hashedPassword,
         c_role_id: superadminRole.id,
+        is_active: true,
       },
     });
 

@@ -10,7 +10,7 @@ process.chdir(path.join(process.cwd(), "node_modules", "express-auth"));
 
 if (process.argv[2] === "init")
   exec(
-    "npm i --save-dev @types/bcryptjs",
+    "npx prisma generate",
     { env: { ...process.env } },
     (err, stdout, stderr) => {
       if (err) {
@@ -23,7 +23,7 @@ if (process.argv[2] === "init")
       console.error(stderr);
 
       exec(
-        "npx prisma generate",
+        "npx prisma db seed",
         { env: { ...process.env } },
         (err, stdout, stderr) => {
           if (err) {
@@ -34,21 +34,6 @@ if (process.argv[2] === "init")
           }
           console.log(stdout);
           console.error(stderr);
-
-          exec(
-            "npx prisma db seed",
-            { env: { ...process.env } },
-            (err, stdout, stderr) => {
-              if (err) {
-                console.error();
-                console.error("Error:");
-                console.error(err);
-                console.error();
-              }
-              console.log(stdout);
-              console.error(stderr);
-            }
-          );
         }
       );
     }
