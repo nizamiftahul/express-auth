@@ -47,7 +47,6 @@ import {
   login,
   authOTPMiddleware,
   generateOTP,
-  db,
   logout,
   refreshToken,
   verifyOTP,
