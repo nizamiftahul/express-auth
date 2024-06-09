@@ -29,13 +29,13 @@ const transporter = nodemailer.createTransport({
 });
 
 const generateJWT = (email: string) => {
-  return jwt.sign(email, JWT_TOKEN_SECRET, {
+  return jwt.sign({ email }, JWT_TOKEN_SECRET, {
     expiresIn: JWT_TOKEN_EXPIRED,
   });
 };
 
 const generateRefreshJWT = (email: string) => {
-  return jwt.sign(email, JWT_REFRESH_SECRET, {
+  return jwt.sign({ email }, JWT_REFRESH_SECRET, {
     expiresIn: JWT_REFRESH_EXPIRED,
   });
 };
@@ -87,8 +87,7 @@ export const refreshToken = (req: Request, res: Response) => {
         return res.sendStatus(403);
       }
 
-      const { email } = decoded as any;
-      const accessToken = generateJWT(email);
+      const accessToken = generateJWT((decoded as any).email);
       refreshTokens[token] = accessToken;
       res.json({ accessToken });
     }

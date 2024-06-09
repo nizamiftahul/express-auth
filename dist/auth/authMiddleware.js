@@ -34,7 +34,7 @@ const authMiddleware = (permissions) => {
                         return res.sendStatus(401);
                     const user = yield db_1.default.c_user.findFirst({
                         where: {
-                            email: decoded,
+                            email: decoded.email,
                         },
                         include: {
                             c_role: true,
@@ -74,7 +74,7 @@ const authOTPMiddleware = (req, res, next) => {
                 }
                 const user = yield db_1.default.c_user.findFirst({
                     where: {
-                        email: decoded,
+                        email: decoded.email,
                     },
                     include: {
                         c_role: true,
