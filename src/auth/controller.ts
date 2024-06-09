@@ -58,7 +58,7 @@ export const login = async (req: Request, res: Response) => {
   }
 
   const accessToken = generateJWT(email);
-  requestOtps[accessToken] = email;
+  requestOtps[accessToken] = "";
 
   res.json({ accessToken });
 };
@@ -101,14 +101,14 @@ export const generateOTP = (req: Request, res: Response) => {
   authOTPMiddleware(req, res, async () => {
     const email = req.user?.email ?? "";
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    await db.c_user.update({
-      where: {
-        email,
-      },
-      data: {
-        otp,
-      },
-    });
+    // await db.c_user.update({
+    //   where: {
+    //     email,
+    //   },
+    //   data: {
+    //     otp,
+    //   },
+    // });
 
     transporter
       .sendMail({
@@ -118,7 +118,12 @@ export const generateOTP = (req: Request, res: Response) => {
         text: `Your OTP is: ${otp}`,
       })
       .then(() => {
-        res.status(200).send("OTP have been sent to your email.");
+        const authorization = req.headers["authorization"];
+        const token = authorization?.split(" ")[1] ?? "";
+        requestOtps[token] = otp;
+        if (process.env.NODE_ENV === "development")
+          res.status(200).send(`OTP ${otp} have been sent to your email.`);
+        else res.status(200).send(`OTP have been sent to your email.`);
       })
       .catch((error) => {
         console.error("Error sending OTP:", error);
@@ -132,13 +137,16 @@ export const verifyOTP = async (req: Request, res: Response) => {
     const email = req.user?.email ?? "";
     const { otp } = req.body;
 
-    const user = await db.c_user.findFirst({ where: { email: email ?? "" } });
+    const user = await db.c_user.findFirst({ where: { email: email } });
 
-    if (!user || !user.otp) {
+    const authorization = req.headers["authorization"];
+    const token = authorization?.split(" ")[1] ?? "";
+
+    if (!user || !requestOtps[token]) {
       return res.status(404).send("User not found or OTP not enabled");
     }
 
-    if (user.otp !== otp) {
+    if (requestOtps[token] !== otp) {
       return res.status(401).send("Invalid OTP");
     }
 
@@ -152,13 +160,9 @@ export const verifyOTP = async (req: Request, res: Response) => {
       },
     });
 
+    delete requestOtps[token];
     const refreshToken = generateRefreshJWT(email);
-
-    const authorization = req.headers["authorization"];
-    const token = authorization?.split(" ")[1];
-    delete requestOtps[token ?? ""];
-
-    refreshTokens[refreshToken] = token ?? "";
+    refreshTokens[refreshToken] = token;
     res.status(200).json({ refreshToken });
   });
 };
@@ -200,10 +204,10 @@ export const createUser = async (req: Request, res: Response) => {
 };
 
 export const activateUser = async (req: Request, res: Response) => {
-  const token = req.params.token;
+  const token = req.params.token ?? "";
   const user = await db.c_user.findFirst({
     where: {
-      activeToken: token ?? "",
+      activeToken: token,
     },
   });
 
@@ -289,13 +293,13 @@ export const forgotPassword = async (req: Request, res: Response) => {
 
 export const resetPassword = async (req: Request, res: Response) => {
   try {
-    const token = req.params.token;
+    const token = req.params.token ?? "";
     const { password } = req.body;
     const hashedPassword = bcrypt.hashSync(password, 10);
 
     const user = await db.c_user.findFirst({
       where: {
-        resetToken: token ?? "",
+        resetToken: token,
       },
     });
 
@@ -320,12 +324,12 @@ export const resetPassword = async (req: Request, res: Response) => {
 export const updatePassword = async (req: Request, res: Response) => {
   authMiddleware([])(req, res, async () => {
     try {
-      const email = req.user?.email;
+      const email = req.user?.email ?? "";
       const { newPassword, currentPassword } = req.body;
 
       const user = await db.c_user.findFirst({
         where: {
-          email: email ?? "",
+          email: email,
         },
       });
 
