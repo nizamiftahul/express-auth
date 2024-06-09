@@ -43,18 +43,15 @@ Change provider
 ```javascript
 import express, { Router, Response, Request } from "express";
 import bodyParser from "body-parser";
-import { init } from "express-auth/src/db";
 import {
-  generateOTP,
   login,
+  authOTPMiddleware,
+  generateOTP,
+  init,
   logout,
   refreshToken,
   verifyOTP,
-} from "express-auth/src/auth/controller";
-import authMiddleware, {
-  authOTPMiddleware,
-} from "express-auth/src/auth/authMiddleware";
-import excludeProperties from "express-auth/src/utils/excludeProperties";
+} from "express-auth";
 
 import dotenv from "dotenv";
 dotenv.config();

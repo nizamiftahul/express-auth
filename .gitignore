@@ -1,6 +1,9 @@
 # Node.js dependencies
 node_modules/
 
+# Ignore build directory
+build/
+
 # Sourcemap files
 *.js.map
 
@@ -10,6 +13,9 @@ node_modules/
 
 # Environment variables file (if using dotenv)
 .env
+
+# Environment variables file (if using dotenv)
+.env.local
 
 # OS-specific files
 .DS_Store
