@@ -25,7 +25,7 @@ export const authMiddleware = (permissions: Array<string>) => {
 
           const user = await db.c_user.findFirst({
             where: {
-              email,
+              email: email ?? "",
             },
             include: {
               c_role: true,
@@ -75,7 +75,7 @@ export const authOTPMiddleware = (
 
         const user = await db.c_user.findFirst({
           where: {
-            email,
+            email: email ?? "",
           },
           include: {
             c_role: true,

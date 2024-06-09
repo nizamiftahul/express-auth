@@ -51,7 +51,7 @@ export const login = async (req: Request, res: Response) => {
 
   const user = await db.c_user.findFirst({
     where: {
-      email,
+      email: email ?? "",
       is_active: true,
       is_deleted: false,
     },
@@ -136,7 +136,7 @@ export const verifyOTP = async (req: Request, res: Response) => {
     const email = req.user?.email ?? "";
     const { otp } = req.body;
 
-    const user = await db.c_user.findFirst({ where: { email } });
+    const user = await db.c_user.findFirst({ where: { email: email ?? "" } });
 
     if (!user || !user.otp) {
       return res.status(404).send("User not found or OTP not enabled");
@@ -203,7 +203,7 @@ export const activateUser = async (req: Request, res: Response) => {
   const token = req.params.token;
   const user = await db.c_user.findFirst({
     where: {
-      activeToken: token,
+      activeToken: token ?? "",
     },
   });
 
@@ -248,7 +248,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
     const { email } = req.body;
     const user = await db.c_user.findFirst({
       where: {
-        email,
+        email: email ?? "",
       },
     });
 
@@ -295,7 +295,7 @@ export const resetPassword = async (req: Request, res: Response) => {
 
     const user = await db.c_user.findFirst({
       where: {
-        resetToken: token,
+        resetToken: token ?? "",
       },
     });
 
@@ -325,7 +325,7 @@ export const updatePassword = async (req: Request, res: Response) => {
 
       const user = await db.c_user.findFirst({
         where: {
-          email,
+          email: email ?? "",
         },
       });
 
