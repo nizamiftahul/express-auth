@@ -72,10 +72,9 @@ const authOTPMiddleware = (req, res, next) => {
                 if (err) {
                     return res.sendStatus(403);
                 }
-                const { email } = decoded;
                 const user = yield db_1.default.c_user.findFirst({
                     where: {
-                        email: email !== null && email !== void 0 ? email : "",
+                        email: decoded,
                     },
                     include: {
                         c_role: true,

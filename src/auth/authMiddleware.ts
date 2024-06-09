@@ -70,11 +70,9 @@ export const authOTPMiddleware = (
           return res.sendStatus(403);
         }
 
-        const { email } = decoded as any;
-
         const user = await db.c_user.findFirst({
           where: {
-            email: email ?? "",
+            email: decoded as string,
           },
           include: {
             c_role: true,
