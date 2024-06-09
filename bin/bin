@@ -32,20 +32,20 @@ if (process.argv[2] === "init")
         console.log(stdout);
         console.error(stderr);
 
-        exec(
-          "npx prisma db seed",
-          { env: { ...process.env } },
-          (err, stdout, stderr) => {
-            if (err) {
-              console.error();
-              console.error("Error:");
-              console.error(err);
-              console.error();
-            }
-            console.log(stdout);
-            console.error(stderr);
-          }
-        );
+        // exec(
+        //   "npx prisma db seed",
+        //   { env: { ...process.env } },
+        //   (err, stdout, stderr) => {
+        //     if (err) {
+        //       console.error();
+        //       console.error("Error:");
+        //       console.error(err);
+        //       console.error();
+        //     }
+        //     console.log(stdout);
+        //     console.error(stderr);
+        //   }
+        // );
       }
     );
   });
