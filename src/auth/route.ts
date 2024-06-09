@@ -13,8 +13,8 @@ import {
   verifyOTP,
 } from "./controller";
 import { authMiddleware } from "./authMiddleware";
-import db from "@src/db";
-import excludeProperties from "@src/utils/excludeProperties";
+import db from "./../db";
+import excludeProperties from "./../utils/excludeProperties";
 
 declare global {
   namespace Express {

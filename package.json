@@ -2,10 +2,11 @@
   "name": "express-auth",
   "version": "1.0.0",
   "description": "A role-based authentication middleware for Express using TypeScript and Prisma.",
-  "main": "build/index.js",
+  "main": "dist/export.js",
+  "types": "dist/export.d.ts",
   "scripts": {
     "build": "tsc",
-    "dev": "nodemon --watch src --exec ts-node -r tsconfig-paths/register src/index.ts"
+    "dev": "nodemon --watch src --exec ts-node src/index.ts"
   },
   "repository": {
     "type": "git",
@@ -42,7 +43,6 @@
     "prisma": "^5.15.0",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^1.1.8",
-    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.4.5"
   },
   "prisma": {

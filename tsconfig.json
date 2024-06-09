@@ -2,13 +2,10 @@
   "compilerOptions": {
     "target": "ES6",
     "module": "commonjs",
-    "outDir": "build",
+    "outDir": "dist",
     "strict": true,
     "esModuleInterop": true,
-    "baseUrl": "./",
-    "paths": {
-      "@src/*": ["src/*"]
-    }
+    "declaration": true
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "prisma"]

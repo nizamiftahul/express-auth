@@ -1,9 +1,6 @@
 # Node.js dependencies
 node_modules/
 
-# Ignore build directory
-build/
-
 # Sourcemap files
 *.js.map
 

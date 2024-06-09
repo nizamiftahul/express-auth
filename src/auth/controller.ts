@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
 import crypto from "crypto";
 import { authMiddleware, authOTPMiddleware } from "./authMiddleware";
-import db from "@src/db";
+import db from "./../db";
 
 const JWT_TOKEN_SECRET = process.env.JWT_TOKEN_SECRET ?? "JWT_TOKEN_SECRET";
 const JWT_REFRESH_SECRET =
