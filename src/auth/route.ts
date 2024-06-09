@@ -12,7 +12,7 @@ import {
   updatePassword,
   verifyOTP,
 } from "./controller";
-import authMiddleware from "./authMiddleware";
+import { authMiddleware } from "./authMiddleware";
 import db from "@src/db";
 import excludeProperties from "@src/utils/excludeProperties";
 
