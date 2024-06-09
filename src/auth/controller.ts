@@ -67,17 +67,17 @@ export const login = async (req: Request, res: Response) => {
 };
 
 export const refreshToken = (req: Request, res: Response) => {
-  const { token } = req.body;
+  const { refreshToken } = req.body;
 
   const authorization = req.headers["authorization"];
   const accessToken = authorization?.split(" ")[1];
 
-  if (refreshTokens[token] !== accessToken) {
+  if (refreshTokens[refreshToken] !== accessToken) {
     return res.sendStatus(403);
   }
 
   jwt.verify(
-    token,
+    refreshToken,
     JWT_REFRESH_SECRET,
     (
       err: jwt.VerifyErrors | null,
@@ -88,7 +88,7 @@ export const refreshToken = (req: Request, res: Response) => {
       }
 
       const accessToken = generateJWT((decoded as any).email);
-      refreshTokens[token] = accessToken;
+      refreshTokens[refreshToken] = accessToken;
       res.json({ accessToken });
     }
   );

@@ -69,18 +69,18 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.login = login;
 const refreshToken = (req, res) => {
-    const { token } = req.body;
+    const { refreshToken } = req.body;
     const authorization = req.headers["authorization"];
     const accessToken = authorization === null || authorization === void 0 ? void 0 : authorization.split(" ")[1];
-    if (exports.refreshTokens[token] !== accessToken) {
+    if (exports.refreshTokens[refreshToken] !== accessToken) {
         return res.sendStatus(403);
     }
-    jsonwebtoken_1.default.verify(token, JWT_REFRESH_SECRET, (err, decoded) => {
+    jsonwebtoken_1.default.verify(refreshToken, JWT_REFRESH_SECRET, (err, decoded) => {
         if (err) {
             return res.sendStatus(403);
         }
         const accessToken = generateJWT(decoded.email);
-        exports.refreshTokens[token] = accessToken;
+        exports.refreshTokens[refreshToken] = accessToken;
         res.json({ accessToken });
     });
 };
