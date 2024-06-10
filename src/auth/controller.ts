@@ -169,7 +169,7 @@ export const verifyOTP = async (req: Request, res: Response) => {
 };
 
 export const createUser = async (req: Request, res: Response) => {
-  authMiddleware([])(req, res, async () => {
+  authMiddleware("c_user.create")(req, res, async () => {
     try {
       const { email, password, c_role_id } = req.body;
       const hashedPassword = bcrypt.hashSync(password, 10);
@@ -230,7 +230,7 @@ export const activateUser = async (req: Request, res: Response) => {
 };
 
 export const deleteUser = async (req: Request, res: Response) => {
-  authMiddleware([])(req, res, async () => {
+  authMiddleware("c_user.delete")(req, res, async () => {
     try {
       const id = Number(req.params.id);
       const data = await db.c_user.update({
@@ -323,7 +323,7 @@ export const resetPassword = async (req: Request, res: Response) => {
 };
 
 export const updatePassword = async (req: Request, res: Response) => {
-  authMiddleware([])(req, res, async () => {
+  authMiddleware()(req, res, async () => {
     try {
       const email = req.user?.email ?? "";
       const { newPassword, currentPassword } = req.body;

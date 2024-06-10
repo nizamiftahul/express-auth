@@ -26,7 +26,7 @@ declare global {
 
 const router = Router();
 
-router.get("/", authMiddleware([]), async (req: Request, res: Response) => {
+router.get("/", authMiddleware(), async (req: Request, res: Response) => {
   const user = await db.c_user.findFirst({
     where: {
       email: req.user?.email ?? "",

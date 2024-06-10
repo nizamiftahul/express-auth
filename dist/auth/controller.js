@@ -158,7 +158,7 @@ const verifyOTP = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.verifyOTP = verifyOTP;
 const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    (0, authMiddleware_1.authMiddleware)([])(req, res, () => __awaiter(void 0, void 0, void 0, function* () {
+    (0, authMiddleware_1.authMiddleware)("c_user.create")(req, res, () => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const { email, password, c_role_id } = req.body;
             const hashedPassword = bcrypt_1.default.hashSync(password, 10);
@@ -216,7 +216,7 @@ const activateUser = (req, res) => __awaiter(void 0, void 0, void 0, function* (
 });
 exports.activateUser = activateUser;
 const deleteUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    (0, authMiddleware_1.authMiddleware)([])(req, res, () => __awaiter(void 0, void 0, void 0, function* () {
+    (0, authMiddleware_1.authMiddleware)("c_user.delete")(req, res, () => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const id = Number(req.params.id);
             const data = yield db_1.default.c_user.update({
@@ -307,7 +307,7 @@ const resetPassword = (req, res) => __awaiter(void 0, void 0, void 0, function* 
 });
 exports.resetPassword = resetPassword;
 const updatePassword = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    (0, authMiddleware_1.authMiddleware)([])(req, res, () => __awaiter(void 0, void 0, void 0, function* () {
+    (0, authMiddleware_1.authMiddleware)()(req, res, () => __awaiter(void 0, void 0, void 0, function* () {
         var _k, _l;
         try {
             const email = (_l = (_k = req.user) === null || _k === void 0 ? void 0 : _k.email) !== null && _l !== void 0 ? _l : "";

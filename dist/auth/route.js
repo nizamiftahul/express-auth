@@ -18,7 +18,7 @@ const authMiddleware_1 = require("./authMiddleware");
 const db_1 = __importDefault(require("./../db"));
 const excludeProperties_1 = __importDefault(require("./../utils/excludeProperties"));
 const router = (0, express_1.Router)();
-router.get("/", (0, authMiddleware_1.authMiddleware)([]), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.get("/", (0, authMiddleware_1.authMiddleware)(), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
     const user = yield db_1.default.c_user.findFirst({
         where: {

@@ -8,7 +8,7 @@ dotenv.config();
 
 const JWT_TOKEN_SECRET = process.env.JWT_TOKEN_SECRET ?? "JWT_TOKEN_SECRET";
 
-export const authMiddleware = (permissions: Array<string>) => {
+export const authMiddleware = (permission?: string) => {
   return (req: Request, res: Response, next: NextFunction) => {
     try {
       const authorization = req.headers["authorization"];
@@ -25,17 +25,22 @@ export const authMiddleware = (permissions: Array<string>) => {
           const user = await db.c_user.findFirst({
             where: {
               email: (decoded as any).email,
+              c_role: {
+                c_role_permission: {
+                  some: {
+                    c_permission: {
+                      name: permission,
+                    },
+                  },
+                },
+              },
             },
             include: {
               c_role: true,
             },
           });
 
-          if (
-            !user ||
-            (permissions.length > 0 &&
-              permissions.indexOf(user.c_role.name) < 0)
-          ) {
+          if (!user) {
             return res.sendStatus(401);
           }
 

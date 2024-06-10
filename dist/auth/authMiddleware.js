@@ -20,7 +20,7 @@ const db_1 = __importDefault(require("../db"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const JWT_TOKEN_SECRET = (_a = process.env.JWT_TOKEN_SECRET) !== null && _a !== void 0 ? _a : "JWT_TOKEN_SECRET";
-const authMiddleware = (permissions) => {
+const authMiddleware = (permission) => {
     return (req, res, next) => {
         try {
             const authorization = req.headers["authorization"];
@@ -35,14 +35,21 @@ const authMiddleware = (permissions) => {
                     const user = yield db_1.default.c_user.findFirst({
                         where: {
                             email: decoded.email,
+                            c_role: {
+                                c_role_permission: {
+                                    some: {
+                                        c_permission: {
+                                            name: permission,
+                                        },
+                                    },
+                                },
+                            },
                         },
                         include: {
                             c_role: true,
                         },
                     });
-                    if (!user ||
-                        (permissions.length > 0 &&
-                            permissions.indexOf(user.c_role.name) < 0)) {
+                    if (!user) {
                         return res.sendStatus(401);
                     }
                     req.user = {
