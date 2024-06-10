@@ -15,8 +15,8 @@ datasource db {
 
 model c_user {
   id          Int       @id @default(autoincrement())
-  email       String    @unique @db.VarChar()
-  password    String    @db.VarChar()
+  email       String    @unique @db.VarChar(50)
+  password    String    @db.VarChar(255)
   last_login  DateTime?
   is_active   Boolean   @default(false)
   is_deleted  Boolean   @default(false)
@@ -33,7 +33,7 @@ model c_user {
 
 model c_role {
   id   Int    @id @default(autoincrement())
-  name String @unique @db.VarChar()
+  name String @unique @db.VarChar(50)
 
   created_by Int?
   created_at DateTime @default(now())
@@ -46,7 +46,7 @@ model c_role {
 
 model c_permission {
   id                Int                 @id @default(autoincrement())
-  name              String              @unique @db.VarChar()
+  name              String              @unique @db.VarChar(50)
   c_role_permission c_role_permission[]
 
   created_by Int?
