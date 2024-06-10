@@ -17,8 +17,6 @@ model c_user {
   id          Int       @id @default(autoincrement())
   email       String    @unique @db.VarChar()
   password    String    @db.VarChar()
-  otp         String?   @db.Char(6)
-  photo       String?   @db.VarChar()
   last_login  DateTime?
   is_active   Boolean   @default(false)
   is_deleted  Boolean   @default(false)

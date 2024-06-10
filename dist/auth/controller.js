@@ -147,7 +147,6 @@ const verifyOTP = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 email,
             },
             data: {
-                otp: null,
                 last_login: new Date(),
             },
         });

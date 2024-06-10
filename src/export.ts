@@ -13,4 +13,3 @@ export {
   verifyOTP,
 } from "./auth/controller";
 export { hashSync, compareSync } from "bcrypt";
-export * from "./utils/excludeProperties";
