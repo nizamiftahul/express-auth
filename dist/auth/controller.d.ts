@@ -5,7 +5,7 @@ export declare const requestOtps: {
 export declare const refreshTokens: {
     [key: string]: string;
 };
-export declare const login: (req: Request, res: Response) => Promise<void>;
+export declare const login: (roles?: string[]) => (req: Request, res: Response) => Promise<void>;
 export declare const refreshToken: (req: Request, res: Response) => Response<any, Record<string, any>> | undefined;
 export declare const logout: (req: Request, res: Response) => void;
 export declare const generateOTP: (req: Request, res: Response) => void;

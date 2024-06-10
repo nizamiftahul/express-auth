@@ -50,13 +50,18 @@ const generateRefreshJWT = (email) => {
 function generateToken() {
     return crypto_1.default.randomBytes(20).toString("hex");
 }
-const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const login = (roles) => (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
     const user = yield db_1.default.c_user.findFirst({
         where: {
             email: email !== null && email !== void 0 ? email : "",
             is_active: true,
             is_deleted: false,
+            c_role: {
+                name: {
+                    in: roles,
+                },
+            },
         },
     });
     if (!user || !bcrypt_1.default.compareSync(password, user.password)) {

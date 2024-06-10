@@ -44,27 +44,33 @@ function generateToken() {
   return crypto.randomBytes(20).toString("hex");
 }
 
-export const login = async (req: Request, res: Response) => {
-  const { email, password } = req.body;
+export const login =
+  (roles?: string[]) => async (req: Request, res: Response) => {
+    const { email, password } = req.body;
 
-  const user = await db.c_user.findFirst({
-    where: {
-      email: email ?? "",
-      is_active: true,
-      is_deleted: false,
-    },
-  });
+    const user = await db.c_user.findFirst({
+      where: {
+        email: email ?? "",
+        is_active: true,
+        is_deleted: false,
+        c_role: {
+          name: {
+            in: roles,
+          },
+        },
+      },
+    });
 
-  if (!user || !bcrypt.compareSync(password, user.password)) {
-    res.status(401).json({ message: "Invalid username or password" });
-    return;
-  }
+    if (!user || !bcrypt.compareSync(password, user.password)) {
+      res.status(401).json({ message: "Invalid username or password" });
+      return;
+    }
 
-  const accessToken = generateJWT(email);
-  requestOtps[accessToken] = "";
+    const accessToken = generateJWT(email);
+    requestOtps[accessToken] = "";
 
-  res.json({ accessToken });
-};
+    res.json({ accessToken });
+  };
 
 export const refreshToken = (req: Request, res: Response) => {
   const { refreshToken } = req.body;
